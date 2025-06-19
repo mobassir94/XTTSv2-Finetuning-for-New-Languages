@@ -1,5 +1,5 @@
 # core deps
-#indic-nlp-library
+indic-nlp-library
 numpy>=1.24.3
 cython>=0.29.30
 scipy>=1.11.2
