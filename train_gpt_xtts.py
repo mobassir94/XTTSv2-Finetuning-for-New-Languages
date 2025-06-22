@@ -188,27 +188,27 @@ def train_gpt(metadatas, num_epochs, batch_size, grad_acumm, output_path, max_au
         eval_split_size=config.eval_split_size,
     )
 
-# Ensure UTF-8 Encoding when loading CSV files
-for dataset_cfg in DATASETS_CONFIG_LIST:
-    dataset_path = os.path.join(dataset_cfg.path, dataset_cfg.meta_file_train)
-    try:
-        with open(dataset_path, encoding="utf-8") as f:
-            f.readlines()
-    except UnicodeDecodeError:
-        raise ValueError(f"The file {dataset_path} is not encoded in UTF-8. Please re-encode and try again.")
-
-# Combine all transcripts from both train and eval samples
-all_transcripts = "".join([item["text"] for item in train_samples + eval_samples])
-
-# Check for unknown tokens in tokenizer
-unknown_tokens = sorted(set([char for char in all_transcripts if char not in model.tokenizer.tokens]))
-
-if unknown_tokens:
-    print("\n⚠️ WARNING: Unknown tokens detected!")
-    print("These tokens are not covered by your tokenizer:", unknown_tokens)
-    print("Consider extending your tokenizer vocabulary before training.\n")
-else:
-    print("\n✅ All tokens are covered by the tokenizer.\n")
+    # Ensure UTF-8 Encoding when loading CSV files
+    for dataset_cfg in DATASETS_CONFIG_LIST:
+        dataset_path = os.path.join(dataset_cfg.path, dataset_cfg.meta_file_train)
+        try:
+            with open(dataset_path, encoding="utf-8") as f:
+                f.readlines()
+        except UnicodeDecodeError:
+            raise ValueError(f"The file {dataset_path} is not encoded in UTF-8. Please re-encode and try again.")
+    
+    # Combine all transcripts from both train and eval samples
+    all_transcripts = "".join([item["text"] for item in train_samples + eval_samples])
+    
+    # Check for unknown tokens in tokenizer
+    unknown_tokens = sorted(set([char for char in all_transcripts if char not in model.tokenizer.tokens]))
+    
+    if unknown_tokens:
+        print("\n⚠️ WARNING: Unknown tokens detected!")
+        print("These tokens are not covered by your tokenizer:", unknown_tokens)
+        print("Consider extending your tokenizer vocabulary before training.\n")
+    else:
+        print("\n✅ All tokens are covered by the tokenizer.\n")
 
 
     # init the trainer and 🚀
