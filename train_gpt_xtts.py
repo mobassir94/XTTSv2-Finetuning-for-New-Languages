@@ -312,9 +312,9 @@ def train_gpt(metadatas, num_epochs, batch_size, grad_acumm, output_path, max_au
         ModelManager._download_model_files([MEL_NORM_LINK, DVAE_CHECKPOINT_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True)
 
     # Download XTTS v2.0 checkpoint if needed
-    TOKENIZER_FILE_LINK = "https://coqui.gateway.scarf.sh/hf-coqui/XTTS-v2/main/vocab.json"
-    XTTS_CHECKPOINT_LINK = "https://coqui.gateway.scarf.sh/hf-coqui/XTTS-v2/main/model.pth"
-    XTTS_CONFIG_LINK = "https://coqui.gateway.scarf.sh/hf-coqui/XTTS-v2/main/config.json"
+    TOKENIZER_FILE_LINK = "/vocab.json"
+    XTTS_CHECKPOINT_LINK = "/model.pth"
+    XTTS_CONFIG_LINK = "/config.json"
 
     # XTTS transfer learning parameters: You we need to provide the paths of XTTS model checkpoint that you want to do the fine tuning.
     TOKENIZER_FILE = os.path.join(CHECKPOINTS_OUT_PATH, os.path.basename(TOKENIZER_FILE_LINK))  # vocab.json file
