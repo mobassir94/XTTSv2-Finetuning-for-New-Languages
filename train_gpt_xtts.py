@@ -69,6 +69,7 @@ def load_tokenizer_vocab(tokenizer_file: str) -> Dict[str, int]:
     Returns:
         Dictionary mapping tokens to their IDs
     """
+    print("--------loading tokenizer from ",tokenizer_file)
     try:
         with open(tokenizer_file, 'r', encoding='utf-8') as f:
             vocab = json.load(f)
