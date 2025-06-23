@@ -59,26 +59,23 @@ def validate_text_encoding(text: str, sample_info: str = "") -> bool:
         logger.error(f"Unexpected error validating text {sample_info}: {e}")
         return False
 
+
 def load_tokenizer_vocab(tokenizer_file: str) -> Dict[str, int]:
     """
     Load the vocabulary from the XTTS tokenizer file.
-    
-    Args:
-        tokenizer_file: Path to the vocab.json file
-        
-    Returns:
-        Dictionary mapping tokens to their IDs
     """
     print("--------loading tokenizer from ",tokenizer_file)
     try:
-        with open(tokenizer_file, 'r', encoding='utf-8') as f:
-            vocab = json.load(f)
+        # Use proper tokenizer loading instead of direct JSON
+        from tokenizers import Tokenizer
+        tokenizer = Tokenizer.from_file(tokenizer_file)
+        vocab = tokenizer.get_vocab()
         logger.info(f"Loaded vocabulary with {len(vocab)} tokens")
         return vocab
     except Exception as e:
         logger.error(f"Error loading tokenizer vocabulary: {e}")
         return {}
-
+        
 def analyze_unknown_tokens(texts: List[str], vocab: Dict[str, int], 
                          language: str = "unknown") -> Dict[str, Any]:
     """
