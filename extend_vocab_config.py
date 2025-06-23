@@ -1,123 +1,80 @@
 import argparse
 import os
-import json
 import pandas as pd
+import json
 from tokenizers import Tokenizer
 from tokenizers.models import BPE
-from tokenizers.pre_tokenizers import Whitespace
 from tokenizers.trainers import BpeTrainer
-
-
-def combine_tokenizers(old_tokenizer_path, new_tokenizer_path, save_dir):
-    with open(os.path.join(old_tokenizer_path, 'vocab.json'), 'r', encoding='utf-8') as f:
-        vocab1 = json.load(f)
-    with open(os.path.join(new_tokenizer_path, 'vocab.json'), 'r', encoding='utf-8') as f:
-        vocab2 = json.load(f)
-
-    merged_vocab = {}
-    idx = 0
-    for word in vocab1:
-        if word not in merged_vocab:
-            merged_vocab[word] = idx
-            idx += 1
-    for word in vocab2:
-        if word not in merged_vocab:
-            merged_vocab[word] = idx
-            idx += 1
-
-    os.makedirs(save_dir, exist_ok=True)
-    with open(os.path.join(save_dir, 'vocab.json'), 'w', encoding='utf-8') as f:
-        json.dump(merged_vocab, f, ensure_ascii=False, indent=2)
-
-    merges_1 = os.path.join(old_tokenizer_path, 'merges.txt')
-    merges_2 = os.path.join(new_tokenizer_path, 'merges.txt')
-    merged_merges = os.path.join(save_dir, 'merges.txt')
-
-    with open(merged_merges, 'w', encoding='utf-8') as out_file:
-        with open(merges_1, 'r', encoding='utf-8') as f1:
-            out_file.writelines(f1.readlines())
-        with open(merges_2, 'r', encoding='utf-8') as f2:
-            lines = f2.readlines()[1:]
-            out_file.writelines(lines)
+from tokenizers.pre_tokenizers import Whitespace
+from tokenizers.processors import TemplateProcessing
 
 
 def extend_tokenizer(args):
-    root = os.path.join(args.output_path, "XTTS_v2.0_original_model_files")
-    vocab_json_path = os.path.join(root, "vocab.json")
+    root = os.path.join(args.output_path, "XTTS_v2.0_original_model_files/")
+    os.makedirs(root, exist_ok=True)
 
-    if not os.path.exists(vocab_json_path):
-        raise FileNotFoundError(f"Original vocab.json not found at: {vocab_json_path}")
+    # Read both train and eval CSVs
+    train_df = pd.read_csv(args.metadata_train_path, sep="|")
+    eval_df = pd.read_csv(args.metadata_eval_path, sep="|")
+    texts = train_df["text"].tolist() + eval_df["text"].tolist()
 
-    old_tokenizer_path = os.path.join(root, "old_tokenizer")
-    os.makedirs(old_tokenizer_path, exist_ok=True)
+    print(f"📝 Total training + eval samples: {len(texts)}")
 
-    tokenizer = Tokenizer.from_file(vocab_json_path)
-    tokenizer.model.save(old_tokenizer_path)
-
-    with open(os.path.join(old_tokenizer_path, "vocab.json"), "r", encoding="utf-8") as f:
+    # Load old vocab to get size
+    old_vocab_path = os.path.join(root, "vocab.json")
+    with open(old_vocab_path, "r", encoding="utf-8") as f:
         old_vocab = json.load(f)
     print(f"🔹 Old vocabulary size: {len(old_vocab)}")
 
-    # ✅ Load both train and eval CSVs
-    df_train = pd.read_csv(args.metadata_path, sep="|")
-    df_eval = pd.read_csv(args.metadata_eval_path, sep="|")
-    texts = df_train["text"].astype(str).tolist() + df_eval["text"].astype(str).tolist()
-
-    new_tokenizer = Tokenizer(BPE())
+    # Train new tokenizer from Hindi data
+    new_tokenizer = Tokenizer(BPE(unk_token="[UNK]"))
     new_tokenizer.pre_tokenizer = Whitespace()
-    trainer = BpeTrainer(special_tokens=[f"[{args.language}]"], vocab_size=args.extended_vocab_size)
-    new_tokenizer.train_from_iterator(texts, trainer=trainer)
+    trainer = BpeTrainer(vocab_size=args.extended_vocab_size, special_tokens=[f"[{args.language}]", "[UNK]"])
+    new_tokenizer.train_from_iterator(texts, trainer)
 
-    new_tokenizer_path = os.path.join(root, "new_tokenizer")
-    os.makedirs(new_tokenizer_path, exist_ok=True)
-    new_tokenizer.model.save(new_tokenizer_path)
+    # Add post-processing
+    new_tokenizer.post_processor = TemplateProcessing(
+        single=f"[{args.language}] $A",
+        special_tokens=[(f"[{args.language}]", new_tokenizer.token_to_id(f"[{args.language}]"))]
+    )
 
-    with open(os.path.join(new_tokenizer_path, "vocab.json"), "r", encoding="utf-8") as f:
-        new_vocab = json.load(f)
-    print(f"🆕 New vocabulary size: {len(new_vocab)}")
+    new_vocab_size = new_tokenizer.get_vocab_size()
+    print(f"🆕 New vocabulary size: {new_vocab_size}")
 
-    merged_tokenizer_path = os.path.join(root, "merged_tokenizer")
-    combine_tokenizers(old_tokenizer_path, new_tokenizer_path, merged_tokenizer_path)
-
-    with open(os.path.join(merged_tokenizer_path, "vocab.json"), "r", encoding='utf-8') as f:
-        final_vocab = json.load(f)
+    # Merge old + new vocab (only useful if loading is manual later)
+    final_vocab = set(list(old_vocab.keys()) + list(new_tokenizer.get_vocab().keys()))
     print(f"✅ Final merged vocabulary size: {len(final_vocab)}")
 
-    os.replace(os.path.join(merged_tokenizer_path, "vocab.json"), os.path.join(root, "vocab.json"))
-    os.replace(os.path.join(merged_tokenizer_path, "merges.txt"), os.path.join(root, "merges.txt"))
+    # Save new tokenizer as tokenizer.json
+    tokenizer_out_path = os.path.join(root, "tokenizer.json")
+    new_tokenizer.save(tokenizer_out_path)
+    print(f"📦 Saved updated tokenizer: {tokenizer_out_path}")
 
-    for path in [old_tokenizer_path, new_tokenizer_path, merged_tokenizer_path]:
-        if os.path.exists(path):
-            for file in os.listdir(path):
-                os.remove(os.path.join(path, file))
-            os.rmdir(path)
+    # Overwrite vocab.json with the new vocab dict for compatibility
+    with open(os.path.join(root, "vocab.json"), "w", encoding="utf-8") as f:
+        json.dump(new_tokenizer.get_vocab(), f, ensure_ascii=False)
 
-
-def adjust_config(args):
-    config_path = os.path.join(args.output_path, "XTTS_v2.0_original_model_files", "config.json")
-    if not os.path.exists(config_path):
-        raise FileNotFoundError(f"Config not found: {config_path}")
-
+    # Update config.json to include the new language
+    config_path = os.path.join(root, "config.json")
     with open(config_path, "r", encoding="utf-8") as f:
         config = json.load(f)
 
     if args.language not in config.get("languages", []):
         config["languages"].append(args.language)
         with open(config_path, "w", encoding="utf-8") as f:
-            json.dump(config, f, indent=2)
-        print(f"✅ Language '{args.language}' added to config.json")
+            json.dump(config, f, indent=4)
+        print(f"✅ Added '{args.language}' to config.json")
     else:
         print(f"ℹ️ Language '{args.language}' already present in config.json")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output_path", type=str, required=True, help="Path to XTTS model dir")
-    parser.add_argument("--metadata_path", type=str, required=True, help="Train metadata CSV")
-    parser.add_argument("--metadata_eval_path", type=str, required=True, help="Eval metadata CSV")
-    parser.add_argument("--language", type=str, required=True, help="Language ID, e.g., hi")
-    parser.add_argument("--extended_vocab_size", type=int, default=2000, help="Size of new vocab")
-
+    parser.add_argument("--output_path", type=str, required=True)
+    parser.add_argument("--metadata_train_path", type=str, required=True)
+    parser.add_argument("--metadata_eval_path", type=str, required=True)
+    parser.add_argument("--language", type=str, required=True)
+    parser.add_argument("--extended_vocab_size", type=int, default=2000)
     args = parser.parse_args()
+
     extend_tokenizer(args)
-    adjust_config(args)
