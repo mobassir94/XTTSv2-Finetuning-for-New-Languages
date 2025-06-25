@@ -308,12 +308,7 @@ def train_gpt(metadatas, num_epochs, batch_size, grad_acumm, output_path, max_au
         from tokenizers import Tokenizer
         tokenizer = Tokenizer.from_file(TOKENIZER_FILE)
         vocab_size = tokenizer.get_vocab_size()
-        # Original XTTS vocab has ~51k tokens, extended should have more
-        if vocab_size > 52000:
-            extended_vocab_exists = True
-            print(f" ✅ Using extended vocabulary with {vocab_size} tokens")
-        else:
-            print(f" ⚠️  Small vocabulary detected ({vocab_size} tokens)")
+        print(f" ⚠️  Small vocabulary detected ({vocab_size} tokens)")
 
     # download XTTS v2.0 files if needed (but preserve extended vocab)
     if not extended_vocab_exists:
@@ -343,7 +338,7 @@ def train_gpt(metadatas, num_epochs, batch_size, grad_acumm, output_path, max_au
         max_text_length=max_text_length,
         mel_norm_file=MEL_NORM_FILE,
         dvae_checkpoint=DVAE_CHECKPOINT,
-        xtts_checkpoint=   None,#XTTS_CHECKPOINT,  # checkpoint path of the model that you want to fine-tune
+        #xtts_checkpoint=XTTS_CHECKPOINT,  # checkpoint path of the model that you want to fine-tune
         tokenizer_file=TOKENIZER_FILE,
         gpt_num_audio_tokens=1026,
         gpt_start_audio_token=1024,
