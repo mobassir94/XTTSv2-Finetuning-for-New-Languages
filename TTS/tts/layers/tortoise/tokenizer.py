@@ -3,7 +3,7 @@ import os
 import torch
 from tokenizers import Tokenizer
 
-from TTS.tts.utils.text.cleaners import english_cleaners
+from TTS.tts.utils.text.cleaners import collapse_whitespace
 
 DEFAULT_VOCAB_FILE = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), "../../utils/assets/tortoise/tokenizer.json"
@@ -19,7 +19,7 @@ class VoiceBpeTokenizer:
             self.tokenizer = Tokenizer.from_str(vocab_str)
 
     def preprocess_text(self, txt):
-        txt = english_cleaners(txt)
+        txt = collapse_whitespace(txt)
         return txt
 
     def encode(self, txt):
