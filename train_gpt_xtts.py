@@ -308,26 +308,26 @@ def train_gpt(metadatas, num_epochs, batch_size, grad_acumm, output_path, max_au
         from tokenizers import Tokenizer
         tokenizer = Tokenizer.from_file(TOKENIZER_FILE)
         vocab_size = tokenizer.get_vocab_size()
-        print(f" ⚠️  Small vocabulary detected ({vocab_size} tokens)")
+        print(f"vocabulary detected ({vocab_size} tokens)")
 
     # download XTTS v2.0 files if needed (but preserve extended vocab)
-    if not extended_vocab_exists:
-        if not os.path.isfile(TOKENIZER_FILE):
-            print(" > Downloading XTTS v2.0 tokenizer!")
-            ModelManager._download_model_files(
-                [TOKENIZER_FILE_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
-            )
+    # if not extended_vocab_exists:
+    #     if not os.path.isfile(TOKENIZER_FILE):
+    #         print(" > Downloading XTTS v2.0 tokenizer!")
+    #         ModelManager._download_model_files(
+    #             [TOKENIZER_FILE_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
+    #         )
     
-    if not os.path.isfile(XTTS_CHECKPOINT):
-        print(" > Downloading XTTS v2.0 checkpoint!")
-        ModelManager._download_model_files(
-            [XTTS_CHECKPOINT_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
-        )
-    if not os.path.isfile(XTTS_CONFIG_FILE):
-        print(" > Downloading XTTS v2.0 config!")
-        ModelManager._download_model_files(
-            [XTTS_CONFIG_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
-        )
+    # if not os.path.isfile(XTTS_CHECKPOINT):
+    #     print(" > Downloading XTTS v2.0 checkpoint!")
+    #     ModelManager._download_model_files(
+    #         [XTTS_CHECKPOINT_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
+    #     )
+    # if not os.path.isfile(XTTS_CONFIG_FILE):
+    #     print(" > Downloading XTTS v2.0 config!")
+    #     ModelManager._download_model_files(
+    #         [XTTS_CONFIG_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
+    #     )
 
     # init args and config
     model_args = GPTArgs(
