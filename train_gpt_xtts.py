@@ -114,21 +114,21 @@ def train_gpt(metadatas, num_epochs, batch_size, grad_acumm, output_path, max_au
     XTTS_CONFIG_FILE = os.path.join(CHECKPOINTS_OUT_PATH, os.path.basename(XTTS_CONFIG_LINK))  # config.json file
 
     # download XTTS v2.0 files if needed
-    if not os.path.isfile(TOKENIZER_FILE):
-        print(" > Downloading XTTS v2.0 tokenizer!")
-        ModelManager._download_model_files(
-            [TOKENIZER_FILE_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
-        )
-    if not os.path.isfile(XTTS_CHECKPOINT):
-        print(" > Downloading XTTS v2.0 checkpoint!")
-        ModelManager._download_model_files(
-            [XTTS_CHECKPOINT_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
-        )
-    if not os.path.isfile(XTTS_CONFIG_FILE):
-        print(" > Downloading XTTS v2.0 config!")
-        ModelManager._download_model_files(
-            [XTTS_CONFIG_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
-        )
+    # if not os.path.isfile(TOKENIZER_FILE):
+    #     print(" > Downloading XTTS v2.0 tokenizer!")
+    #     ModelManager._download_model_files(
+    #         [TOKENIZER_FILE_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
+    #     )
+    # if not os.path.isfile(XTTS_CHECKPOINT):
+    #     print(" > Downloading XTTS v2.0 checkpoint!")
+    #     ModelManager._download_model_files(
+    #         [XTTS_CHECKPOINT_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
+    #     )
+    # if not os.path.isfile(XTTS_CONFIG_FILE):
+    #     print(" > Downloading XTTS v2.0 config!")
+    #     ModelManager._download_model_files(
+    #         [XTTS_CONFIG_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
+    #     )
 
     # init args and config
     model_args = GPTArgs(
