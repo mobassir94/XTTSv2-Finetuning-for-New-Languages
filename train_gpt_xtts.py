@@ -238,8 +238,8 @@ if __name__ == "__main__":
         lr=args.lr,
         max_text_length=args.max_text_length,
         max_audio_length=args.max_audio_length,
-        max_conditioning_length=args.max_conditioning_length,
-        min_conditioning_length = args.min_conditioning_length,
+        max_conditioning = args.max_conditioning_length,
+        min_conditioning = args.min_conditioning_length,
         save_step=args.save_step
     )
 
