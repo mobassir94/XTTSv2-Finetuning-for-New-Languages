@@ -31,6 +31,13 @@ def create_xtts_trainer_parser():
                         help="Max audio length")
     parser.add_argument("--max_text_length", type=int, default=200,
                         help="Max text length")
+    
+    parser.add_argument("--max_conditioning_length", type=int, default=200,
+                        help="max_conditioning_length")
+
+    parser.add_argument("--min_conditioning_length", type=int, default=200,
+                        help="min_conditioning_length")
+
     parser.add_argument("--weight_decay", type=float, default=1e-2,
                         help="Weight decay")
     parser.add_argument("--lr", type=float, default=5e-6,
@@ -42,7 +49,7 @@ def create_xtts_trainer_parser():
 
 
 
-def train_gpt(metadatas, num_epochs, batch_size, grad_acumm, output_path, max_audio_length, max_text_length, lr, weight_decay, save_step):
+def train_gpt(metadatas, num_epochs, batch_size, grad_acumm, output_path, max_audio_length, max_text_length, lr, weight_decay, save_step,max_conditioning,min_conditioning):
     #  Logging parameters
     RUN_NAME = "GPT_XTTS_FT"
     PROJECT_NAME = "XTTS_trainer"
@@ -125,8 +132,8 @@ def train_gpt(metadatas, num_epochs, batch_size, grad_acumm, output_path, max_au
 
     # init args and config
     model_args = GPTArgs(
-        max_conditioning_length=132300,  # 6 secs
-        min_conditioning_length=11025,  # 0.5 secs
+        max_conditioning_length=max_conditioning,  # 6 secs
+        min_conditioning_length=min_conditioning,  # 0.5 secs
         debug_loading_failures=False,
         max_wav_length=max_audio_length,  # ~11.6 seconds
         max_text_length=max_text_length,
@@ -231,6 +238,8 @@ if __name__ == "__main__":
         lr=args.lr,
         max_text_length=args.max_text_length,
         max_audio_length=args.max_audio_length,
+        max_conditioning_length=args.max_conditioning_length,
+        min_conditioning_length = args.min_conditioning_length,
         save_step=args.save_step
     )
 
