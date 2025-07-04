@@ -19,6 +19,7 @@ def get_spacy_lang(lang):
         from spacy.lang.en import English
         from spacy.lang.es import Spanish
         from spacy.lang.hi import Hindi
+        from spacy.lang.bn import Bengali
         from spacy.lang.ja import Japanese
         from spacy.lang.zh import Chinese
         import spacy
@@ -37,13 +38,10 @@ def get_spacy_lang(lang):
     elif lang == "hi":
         return Hindi()
     elif lang == "bn":
-        try:
-            return spacy.blank("xx")  # Bangla specific model or fallback
-        except:
-            raise NotImplementedError("Spacy does not support Bangla natively")
-    else:
-        # For most languages, English does the job
-        return English()
+        return Bengali()
+    # else:
+    #     # For most languages, English does the job
+    #     return English()
 
 def split_sentence(text, lang, text_split_length=250):
     """Preprocess the input text"""
