@@ -105,7 +105,7 @@ def train_gpt(metadatas, num_epochs, batch_size, grad_acumm, output_path, max_au
 
     # Download XTTS v2.0 checkpoint if needed
     TOKENIZER_FILE_LINK = "vocab.json"
-    XTTS_CHECKPOINT_LINK = "/XTTS-v2/main/model.pth"
+    XTTS_CHECKPOINT_LINK = "model.pth"
     XTTS_CONFIG_LINK = "/XTTS-v2/main/config.json"
 
     # XTTS transfer learning parameters: You we need to provide the paths of XTTS model checkpoint that you want to do the fine tuning.
@@ -139,7 +139,7 @@ def train_gpt(metadatas, num_epochs, batch_size, grad_acumm, output_path, max_au
         max_text_length=max_text_length,
         mel_norm_file=MEL_NORM_FILE,
         dvae_checkpoint=DVAE_CHECKPOINT,
-        #xtts_checkpoint=XTTS_CHECKPOINT,  # checkpoint path of the model that you want to fine-tune
+        xtts_checkpoint=XTTS_CHECKPOINT,  # checkpoint path of the model that you want to fine-tune
         tokenizer_file=TOKENIZER_FILE,
         gpt_num_audio_tokens=1026,
         gpt_start_audio_token=1024,
