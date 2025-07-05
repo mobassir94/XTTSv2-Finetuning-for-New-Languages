@@ -30,26 +30,21 @@ def download(output_path: str = "checkpoints"):
 
     # Download XTTS v2.0 checkpoint if needed
     TOKENIZER_FILE_LINK = "https://coqui.gateway.scarf.sh/hf-coqui/XTTS-v2/main/vocab.json"
-    #XTTS_CHECKPOINT_LINK = "https://coqui.gateway.scarf.sh/hf-coqui/XTTS-v2/main/model.pth"
+    XTTS_CHECKPOINT_LINK = "https://coqui.gateway.scarf.sh/hf-coqui/XTTS-v2/main/model.pth"
     XTTS_CONFIG_LINK = "https://coqui.gateway.scarf.sh/hf-coqui/XTTS-v2/main/config.json"
 
     # XTTS transfer learning parameters
     TOKENIZER_FILE = os.path.join(CHECKPOINTS_OUT_PATH, os.path.basename(TOKENIZER_FILE_LINK))
-    #XTTS_CHECKPOINT = os.path.join(CHECKPOINTS_OUT_PATH, os.path.basename(XTTS_CHECKPOINT_LINK))
+    XTTS_CHECKPOINT = os.path.join(CHECKPOINTS_OUT_PATH, os.path.basename(XTTS_CHECKPOINT_LINK))
     XTTS_CONFIG_FILE = os.path.join(CHECKPOINTS_OUT_PATH, os.path.basename(XTTS_CONFIG_LINK))
 
     # download XTTS v2.0 files if needed
-    print(" > Downloading XTTS v2.0 files without ckpt!")
-    ModelManager._download_model_files(
-        [TOKENIZER_FILE_LINK, XTTS_CONFIG_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
-        # [TOKENIZER_FILE_LINK, XTTS_CONFIG_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
-    )
-    # if not os.path.isfile(TOKENIZER_FILE) or not os.path.isfile(XTTS_CHECKPOINT):
-    #     print(" > Downloading XTTS v2.0 files!")
-    #     ModelManager._download_model_files(
-    #         [TOKENIZER_FILE_LINK, XTTS_CONFIG_LINK, XTTS_CHECKPOINT_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
-    #         # [TOKENIZER_FILE_LINK, XTTS_CONFIG_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
-    #     )
+    if not os.path.isfile(TOKENIZER_FILE) or not os.path.isfile(XTTS_CHECKPOINT):
+        print(" > Downloading XTTS v2.0 files!")
+        ModelManager._download_model_files(
+            [TOKENIZER_FILE_LINK, XTTS_CONFIG_LINK, XTTS_CHECKPOINT_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
+            # [TOKENIZER_FILE_LINK, XTTS_CONFIG_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
+        )
 
 if __name__ == "__main__":
     parser = HfArgumentParser(DownloadArgs)
